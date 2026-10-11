@@ -73,3 +73,12 @@ Proof of work is considered to be valid only if:
 Basically you need to find such value for `rdata1` so that hash of the Cell is less than current `pow_complexity`
 
 After this an `internal` message with found Cell should be sent to collection with ~0.05 TON in order to mint NFT.
+
+## Offline regression tests
+
+The historical contract toolchain is qualified on Node 16.20.2. Run
+yarn install --frozen-lockfile --ignore-scripts and yarn test.
+The suite uses the real synchronous TVM runner to bound concurrency and avoid
+leaking worker threads. The 30-second test bound includes cold WASM compilation.
+Dependency fixtures use only local HTTP; no wallet, RPC service or chain
+transaction is needed. Node 22's legacy asynchronous WASM loader is not qualified.
