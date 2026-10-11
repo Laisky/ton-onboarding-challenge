@@ -63,3 +63,22 @@ test("HTTP redirects preserve final response and convert POST on 303", async () 
     expect(response).toBe("GET:/final");
   } finally { await new Promise(resolve => server.close(resolve)); }
 });
+test("YAML prototype-looking keys cannot replace document prototypes", () => {
+  const yaml = load("js-yaml");
+  const data = yaml.safeLoad("__proto__:\n  polluted: true\nsafe: hello\n");
+  expect(Object.getPrototypeOf(data)).toBe(Object.prototype);
+  expect(Object.prototype.hasOwnProperty.call(data, "__proto__")).toBe(true);
+  expect(data.safe).toBe("hello");
+  expect({}.polluted).toBeUndefined();
+  expect(() => yaml.safeLoad('!!js/function "function () { return 1; }"')).toThrow();
+});
+test("brace expansion preserves nested alternatives", () => {
+  expect(load("brace-expansion")("nft/{item,giver}/{1,2}.ts")).toEqual([
+    "nft/item/1.ts", "nft/item/2.ts", "nft/giver/1.ts", "nft/giver/2.ts",
+  ]);
+});
+test("browser target queries remain usable", () => {
+  const targets = load("browserslist")("last 2 chrome versions");
+  expect(targets.length).toBe(2);
+  expect(targets.every(value => /^chrome \d+$/.test(value))).toBe(true);
+});
